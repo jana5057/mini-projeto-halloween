@@ -37,6 +37,30 @@ def valores_distintos(registros, campo):
         contagem[valor] = contagem.get(valor,0) + 1
     return contagem 
 
+CANAIS_PADRAO = {
+    "mercado": "Mercado",
+    "loja física": "Loja física",
+    "web": "Web",
+}
+def padronizar_canal(texto):
+    """Devolve o canal oficial, ou None se não for reconhecido."""
+    chave = texto.strip().lower()
+    return CANAIS_PADRAO.get(chave)
+def padronizar_canais(registros):
+    """Padroniza o canal e conta correções e canais não reconhecidos."""
+    corrigidos = 0
+    nao_reconhecidos = 0
+    for registro in registros:
+        original = registro["canal_venda"]
+        padrao = padronizar_canal(original)
+        if padrao is None:
+            nao_reconhecidos += 1  # não inventamos valor: mantém o original
+        else:
+            if padrao != original:
+                corrigidos += 1
+            registro["canal_venda"] = padrao
+    return corrigidos, nao_reconhecidos
+
 registros = ler_csv("halloween_vendas.csv")
 print("total de registros:", len(registros))
 print("canais ANTES:", valores_distintos(registros, "canal_venda"))
@@ -47,4 +71,8 @@ print("categorias vazias preenchidas:", vazias)
 print("categorias não vazias alteradas:", alteradas)
 
 print("categorias DEPOIS:", valores_distintos(registros, "categoria"))
+corrigidos, nao_reconhecidos = padronizar_canais(registros)
+print("canais corrigidos:", corrigidos)
+print("canais não reconhecidos:", nao_reconhecidos)
+print("canais DEPOIS:", valores_distintos(registros, "canal_venda"))
             
