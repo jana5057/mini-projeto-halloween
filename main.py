@@ -29,11 +29,22 @@ def padronizar_categorias(registros):
         registro["categoria"] = limpa
     return vazias_preenchidas, nao_vazias_alteradas
 
+def valores_distintos(registros, campo):
+    """Conta quantas vezes cada valor aparece em uma coluna"""
+    contagem = {}
+    for registro in registros: 
+        valor = registro[campo]
+        contagem[valor] = contagem.get(valor,0) + 1
+    return contagem 
+
 registros = ler_csv("halloween_vendas.csv")
 print("total de registros:", len(registros))
+print("canais ANTES:", valores_distintos(registros, "canal_venda"))
+print("categorias ANTES:", valores_distintos(registros, "categoria"))
 
 vazias, alteradas = padronizar_categorias(registros)
 print("categorias vazias preenchidas:", vazias)
 print("categorias não vazias alteradas:", alteradas)
 
+print("categorias DEPOIS:", valores_distintos(registros, "categoria"))
             
