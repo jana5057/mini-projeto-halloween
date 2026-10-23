@@ -1,5 +1,6 @@
 import csv
 import re
+from datetime import datetime
 
 def ler_csv(caminho):
     """Lê o csv como texto e devolve uma lista de dicionários"""
@@ -110,6 +111,28 @@ def validar_registros(registros):
             pedidos_afetados += 1  # conta o pedido uma vez, mesmo com 2 problemas
     return problemas_quantidade, problemas_preco, pedidos_afetados
 
+def processar_datas(registros):
+    vazias = 0
+    invalidas = 0
+    for registro in registros:
+        texto = registro["data_venda"].strip()
+        registro["ano_mes"] = None
+        if texto == "":
+            vazias += 1
+            continue
+        try:
+            data = datetime.strptime(texto, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            invalidas += 1
+            continue
+        registro["ano"] = data.year
+        registro["mes"] = data.month
+        registro["dia"] = data.day
+        registro["hora"] = data.hour
+        registro["data_br"] = data.strftime("%d/%m/%Y")
+        registro["ano_mes"] = data.strftime("%Y-%m")
+    return vazias, invalidas
+
 registros = ler_csv("halloween_vendas.csv")
 print("total de registros:", len(registros))
 print("canais ANTES:", valores_distintos(registros, "canal_venda"))
@@ -128,4 +151,8 @@ prob_q, prob_p, afetados = validar_registros(registros)
 print("problemas em quantidade:", prob_q)
 print("problemas em preço:", prob_p)
 print("pedidos afetados:", afetados)
+datas_vazias, datas_invalidas = processar_datas(registros)
+print("datas vazias:", datas_vazias)
+print("datas inválidas:", datas_invalidas)
+print("exemplo de data BR:", registros[0].get("data_br"))
             
