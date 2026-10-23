@@ -9,7 +9,7 @@ def ler_csv(caminho):
 def limpar_categoria(texto):
     """Limpa uma categoria: minúscula, sem espaços nas pontas e sem pontuação"""
     texto = texto.strip().lower()
-    texto = re.sub(r"[^\w\s]", '', texto) #só letras sem espaços
+    texto = re.sub(r"[^\w\s]", '', texto) # remove pontuações
     texto = re.sub(r"\s+", " ", texto).strip() #junta espaços repetidos
     if texto == "":
         return "sem categoria" #sem valores inventados
