@@ -133,6 +133,20 @@ def processar_datas(registros):
         registro["ano_mes"] = data.strftime("%Y-%m")
     return vazias, invalidas
 
+def investigar_entrega(registros):
+    cancelados = 0
+    outros_status = 0
+    exemplos = []
+    for registro in registros:
+        if registro["data_entrega"].strip() == "":
+            if registro["status_pedido"].strip().lower() == "cancelado":
+                cancelados += 1
+            else:
+                outros_status += 1
+                if len(exemplos) < 3:
+                    exemplos.append(registro)
+    return cancelados, outros_status, exemplos
+
 registros = ler_csv("halloween_vendas.csv")
 print("total de registros:", len(registros))
 print("canais ANTES:", valores_distintos(registros, "canal_venda"))
@@ -155,4 +169,12 @@ datas_vazias, datas_invalidas = processar_datas(registros)
 print("datas vazias:", datas_vazias)
 print("datas inválidas:", datas_invalidas)
 print("exemplo de data BR:", registros[0].get("data_br"))
-            
+cancelados_sem, outros_sem, exemplos = investigar_entrega(registros)
+print("sem entrega e Cancelado:", cancelados_sem)
+print("sem entrega e outro status:", outros_sem)
+for exemplo in exemplos:
+    print("exemplo:", exemplo["pedido_id"], exemplo["status_pedido"])
+if outros_sem == 0:
+    print("Hipótese verdadeira: todo pedido sem entrega está Cancelado.")
+else:
+    print("Hipótese FALSA: existem contraexemplos.")           
