@@ -7,6 +7,18 @@ def ler_csv(caminho):
     with open(caminho, mode="r", encoding="utf-8", newline="") as arquivo:
         return list(csv.DictReader(arquivo))
 
+def ler_com_pandas(caminho):
+    try:
+        import pandas as pd
+    except ImportError:
+        print("Pandas não instalado")
+        return
+    df = pd.read_csv(caminho, encoding="utf-8")
+    vazias = df["categoria"].isna().sum()
+    df["categoria"] = df["categoria"].fillna("sem categoria")
+    print("Pandas: linhas e colunas:", df.shape)
+    print("Pandas: categorias vazias preenchidas:", vazias)
+
 def limpar_categoria(texto):
     """Limpa uma categoria: minúscula, sem espaços nas pontas e sem pontuação"""
     texto = texto.strip().lower()
@@ -220,3 +232,4 @@ por_mes, excluidos_mes = contar_por_ano_mes(registros)
 for chave in sorted(por_mes):
     print(chave, ":", por_mes[chave])
 print("excluídos por data inválida:", excluidos_mes)
+ler_com_pandas("halloween_vendas.csv")
