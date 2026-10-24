@@ -147,6 +147,37 @@ def investigar_entrega(registros):
                     exemplos.append(registro)
     return cancelados, outros_status, exemplos
 
+def contar_cancelados(registros):
+    total = 0
+    for registro in registros:
+        if registro["status_pedido"].strip().lower() == "cancelado":
+            total += 1
+    return total
+
+
+def contar_por_canal(registros):
+    contagem = {}
+    excluidos = 0
+    for registro in registros:
+        canal = registro["canal_venda"]
+        if canal in CANAIS_PADRAO.values():
+            contagem[canal] = contagem.get(canal, 0) + 1
+        else:
+            excluidos += 1
+    return contagem, excluidos
+
+
+def contar_por_ano_mes(registros):
+    contagem = {}
+    excluidos = 0
+    for registro in registros:
+        chave = registro["ano_mes"]
+        if chave is None:
+            excluidos += 1
+        else:
+            contagem[chave] = contagem.get(chave, 0) + 1
+    return contagem, excluidos
+
 registros = ler_csv("halloween_vendas.csv")
 print("total de registros:", len(registros))
 print("canais ANTES:", valores_distintos(registros, "canal_venda"))
@@ -178,3 +209,14 @@ if outros_sem == 0:
     print("Hipótese verdadeira: todo pedido sem entrega está Cancelado.")
 else:
     print("Hipótese FALSA: existem contraexemplos.")           
+
+print("total de cancelados:", contar_cancelados(registros))
+
+por_canal, excluidos_canal = contar_por_canal(registros)
+print("pedidos por canal:", por_canal)
+print("excluídos por canal:", excluidos_canal)
+
+por_mes, excluidos_mes = contar_por_ano_mes(registros)
+for chave in sorted(por_mes):
+    print(chave, ":", por_mes[chave])
+print("excluídos por data inválida:", excluidos_mes)
